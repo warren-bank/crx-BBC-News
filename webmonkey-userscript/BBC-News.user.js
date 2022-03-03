@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BBC News
 // @description  Watch live video stream in external player.
-// @version      1.0.0
+// @version      1.0.1
 // @match        *://bbc.com/news/live/*
 // @match        *://*.bbc.com/news/live/*
 // @icon         https://m.files.bbci.co.uk/modules/bbc-morph-news-waf-page-meta/5.2.0/apple-touch-icon.png
@@ -117,18 +117,28 @@ var download_json = function(url, headers, data, callback) {
 var download_jsonp = function(url, callback) {
   var name_callback_js, script
 
-  while (true) {
-    name_callback_js = Math.random().toString(36).substr(2)
-
-    if (unsafeWindow[name_callback_js] === undefined) break
-  }
-
+  name_callback_js = 'JSONP_CB' + generate_unused_global_variable_name()
   url = url.replace('{{callback}}', name_callback_js)
   unsafeWindow[name_callback_js] = callback
 
   script = unsafeWindow.document.createElement('script')
   script.setAttribute('src', url)
   unsafeWindow.document.body.appendChild(script)
+}
+
+var generate_unused_global_variable_name = function() {
+  var name
+
+  var get_random_string = function() {
+    return Math.random().toString(36).substr(2).replace(/[^a-zA-Z0-9_\$]+/g, '')
+  }
+
+  while (true) {
+    name = '_' + get_random_string() + get_random_string()
+
+    if (unsafeWindow[name] === undefined)
+      return name
+  }
 }
 
 // -----------------------------------------------------------------------------
