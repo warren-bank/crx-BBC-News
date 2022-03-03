@@ -508,3 +508,34 @@ which contains:
   "supportingMedia": [{
 
 --------------------------------------------------------------------------------
+// https://www.bbc.com/news/live/world-europe-60582327
+
+XHR fetch:
+==========
+  Failed to load https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/l005642d/format/json:
+  No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  Origin 'https://www.bbc.com' is therefore not allowed access.
+
+conclusions:
+============
+* the site uses JSONP for a reason
+  - the XHR endpoint used to obtain JSON data doesn't permit CORS from the page containing the video player
+  - which is pretty ridiculous..
+
+----------------------------------------
+
+curl -I 'https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/l005642d/format/json'
+
+response headers:
+=================
+no CORS
+
+----------------------------------------
+
+curl -I 'https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/l005642d/format/json/jsfunc/JS_callbacks0'
+
+response headers:
+=================
+no CORS
+
+--------------------------------------------------------------------------------

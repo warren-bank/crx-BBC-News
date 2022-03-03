@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BBC News
 // @description  Watch live video stream in external player.
-// @version      0.0.1
+// @version      1.0.0
 // @match        *://bbc.com/news/live/*
 // @match        *://*.bbc.com/news/live/*
 // @icon         https://m.files.bbci.co.uk/modules/bbc-morph-news-waf-page-meta/5.2.0/apple-touch-icon.png
@@ -114,14 +114,29 @@ var download_json = function(url, headers, data, callback) {
   })
 }
 
+var download_jsonp = function(url, callback) {
+  var name_callback_js, script
+
+  while (true) {
+    name_callback_js = Math.random().toString(36).substr(2)
+
+    if (unsafeWindow[name_callback_js] === undefined) break
+  }
+
+  url = url.replace('{{callback}}', name_callback_js)
+  unsafeWindow[name_callback_js] = callback
+
+  script = unsafeWindow.document.createElement('script')
+  script.setAttribute('src', url)
+  unsafeWindow.document.body.appendChild(script)
+}
+
 // -----------------------------------------------------------------------------
 
 var download_video_url = function(video_id, callback) {
-  var url, headers, data, xhr_callback
+  var url, xhr_callback
 
-  url     = 'https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/' + video_id + '/format/json'
-  headers = null
-  data    = null
+  url = 'https://open.live.bbc.co.uk/mediaselector/6/select/version/2.0/mediaset/pc/vpid/' + video_id + '/format/json/jsfunc/{{callback}}'
 
   xhr_callback = function(json) {
     var media, connection
@@ -151,7 +166,7 @@ var download_video_url = function(video_id, callback) {
     }
   }
 
-  download_json(url, headers, data, xhr_callback)
+  download_jsonp(url, xhr_callback)
 }
 
 // ----------------------------------------------------------------------------- URL links to tools on Webcast Reloaded website
